@@ -1,0 +1,69 @@
+from django.db import models
+from django.contrib.auth import get_user_model
+
+User = get_user_model()
+
+# Create your models here.
+class Occurrence(models.Model):
+    STATUS_CHOICES = [
+        ('pending', 'Em validação'),
+        ('approved', 'Aprovado'),
+        ('rejected', 'Rejeitado'),
+    ]
+
+    CRIME_TYPE_CHOICES = [
+        ('theft', 'Furto'),
+        ('robbery', 'Roubo'),
+        ('assault', 'Agressão'),
+        ('gunshot', 'Disparo de arma'),
+        ('car', 'Acidente de trânsito'),
+        ('other', 'Outro'),
+    ]
+
+    reporter = models.ForeignKey(
+        User, on_delete=models.SET_NULL, null=True, blank=True, related_name='occurrences'
+    )
+    crime_type = models.CharField(max_length=20, choices=CRIME_TYPE_CHOICES)
+    description = models.TextField(max_length=300, blank=True)
+    reference = models.TextField(max_length=250, blank=True)
+    logradouro = models.CharField('Logradouro', max_length=100, null=False, blank=False)
+    bairro = models.CharField('Bairro', max_length=50, null=False, blank=False)
+    cidade = models.CharField('Cidade', max_length=50, null=False, blank=False)
+    uf = models.CharField('UF', max_length=20, null=False, blank=False)
+    cep = models.CharField('CEP', max_length=9, null=False, blank=False)
+
+    latitude = models.DecimalField(
+        'Latitude',
+        max_digits=9,
+        decimal_places=6,
+        help_text='Latitude em graus decimais'
+    )
+    longitude = models.DecimalField(
+        'Longitude',
+        max_digits=9,
+        decimal_places=6,
+        help_text='Longitude em graus decimais'
+    )
+
+
+    occurred_at = models.DateTimeField()
+    status = models.CharField(
+        max_length=10, choices=STATUS_CHOICES, default='pending'
+    )
+
+    created_at = models.DateTimeField(auto_now_add=True)
+
+
+    class Meta:
+        verbose_name = 'Denuncia'
+        verbose_name_plural = 'Denuncias'
+        ordering = ['-occurred_at']
+        indexes = [
+            models.Index(fields=['status']),
+            models.Index(fields=['crime_type']),
+            models.Index(fields=['cidade', 'bairro']),
+            models.Index(fields=['occurred_at']),
+        ]
+
+    def __str__(self):
+        return f'{self.get_crime_type_display()} - {self.bairro} - {self.cidade}/{self.uf}'

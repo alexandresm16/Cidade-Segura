@@ -1,0 +1,219 @@
+{% block head %}
+{% include "index.html" %}
+<link href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" rel="stylesheet"/>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+{% endblock %}
+{% load static %}
+{% block content %}
+{% load django_bootstrap5 %}
+
+<section class="py-5 bg-light">
+	<div class="container">
+		<div class="row justify-content-center">
+			<div class="col-lg-10">
+
+				<h4 class="mb-4 text-center">Registrar Ocorrência</h4>
+
+				<form enctype="multipart/form-data" method="post">
+					{% csrf_token %}
+					{% bootstrap_messages %}
+
+					<!-- Tipo da Ocorrência -->
+					<div class="my-4 border-bottom border-3 border-primary">
+						<h5 class="text-primary pt-3">Tipo da Ocorrência</h5>
+						<div class="row">
+							<div class="col-md-6">
+								{% bootstrap_field form.crime_type %}
+							</div>
+							<div class="col-md-6">
+								{% bootstrap_field form.occurred_at %}
+							</div>
+						</div>
+					</div>
+
+					<!-- Localização -->
+					<div class="my-4 border-bottom border-3 border-primary">
+						<h5 class="text-primary pt-3">Localização</h5>
+						<div class="row">
+
+							<!-- Mapa -->
+							<div class="my-4 border-bottom border-3 border-primary">
+								<h5 class="text-primary pt-3">Selecione o Local no Mapa</h5>
+								<div id="map" style="height: 400px; width: 100%;"></div>
+							</div>
+
+							<div class="d-none">
+								<div class="row">
+									<div class="col-md-6">
+										{% bootstrap_field form.latitude %}
+									</div>
+									<div class="col-md-6">
+										{% bootstrap_field form.longitude %}
+									</div>
+								</div>
+							</div>
+
+							<div class="col-md-12 pb-5">
+								<div>{% bootstrap_field form.cep %}</div>
+								<button class="btn btn-sm btn-primary" onclick="buscarEndereco()" type="button">Buscar
+								</button>
+							</div>
+							<div class="alert alert-danger d-none" id="cep-alert" role="alert"></div>
+
+							<div class="col-md-8">
+								{% bootstrap_field form.logradouro %}
+							</div>
+
+							<div class="col-md-4">
+								{% bootstrap_field form.bairro %}
+							</div>
+
+							<div class="col-md-6">
+								{% bootstrap_field form.cidade %}
+							</div>
+
+							<div class="col-md-2">
+								{% bootstrap_field form.uf %}
+							</div>
+						</div>
+					</div>
+
+					<!-- Informações adicionais -->
+					<div class="my-4 border-bottom border-3 border-primary">
+						<h5 class="text-primary pt-3">Informações Adicionais</h5>
+						<div class="row">
+							<div class="col-12">
+								{% bootstrap_field form.description %}
+							</div>
+							<div class="col-12">
+								{% bootstrap_field form.reference %}
+							</div>
+						</div>
+					</div>
+
+					<!-- Botões -->
+					<div class="text-end mt-4">
+						<button class="btn btn-success" type="submit">
+							Registrar Ocorrência
+						</button>
+
+						<a class="btn btn-danger ms-2" href="{% url 'home' %}">
+							Cancelar
+						</a>
+					</div>
+
+				</form>
+
+			</div>
+		</div>
+	</div>
+</section>
+
+<script>
+	// Atualiza para centralizar baseado no perfil do usuário logado
+	let map = L.map('map').setView([-29.695259, -53.776140], 12);
+	let marker = null;
+
+	L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+		maxZoom: 19,
+		attribution: '&copy; OpenStreetMap contributors'
+	}).addTo(map);
+
+	function setMarker(lat, lng) {
+		if (marker) {
+			marker.setLatLng([lat, lng]);
+		} else {
+			marker = L.marker([lat, lng], { draggable: true }).addTo(map);
+			marker.on('dragend', function (e) {
+				const pos = e.target.getLatLng();
+				updateLatLngInputs(pos.lat, pos.lng);
+				reverseGeocode(pos.lat, pos.lng);
+			});
+		}
+
+		updateLatLngInputs(lat, lng);
+		reverseGeocode(lat, lng);
+	}
+
+
+	function updateLatLngInputs(lat, lng) {
+		document.getElementById('id_latitude').value = lat.toFixed(6);
+		document.getElementById('id_longitude').value = lng.toFixed(6);
+	}
+
+	map.on('click', function (e) {
+		setMarker(e.latlng.lat, e.latlng.lng);
+	});
+
+
+	// Atualiza mapa ao buscar CEP
+	function centralizarMapa(lat, lng) {
+		map.setView([lat, lng], 16);
+		setMarker(lat, lng);
+	}
+</script>
+
+<script>
+	function reverseGeocode(lat, lng) {
+		fetch(`/occurrences/reverse-geocode/?lat=${lat}&lon=${lng}`)
+			.then(response => response.json())
+			.then(data => {
+				if (!data.address) return;
+
+				const address = data.address;
+
+				document.getElementById('id_logradouro').value =
+					address.road || address.pedestrian || '';
+
+				document.getElementById('id_bairro').value =
+					address.suburb || address.neighbourhood || '';
+
+				document.getElementById('id_cidade').value =
+					address.city || address.town || address.village || '';
+
+				document.getElementById('id_uf').value =
+					address.state || '';
+
+				if (address.postcode) {
+					document.getElementById('id_cep').value = address.postcode;
+				}
+			})
+			.catch(() => {
+				console.warn('Erro ao buscar endereço pelo mapa');
+			});
+	}
+
+</script>
+
+
+<script>
+	function buscarEndereco() {
+		const cepInput = document.getElementById('id_cep');
+		const cep = cepInput.value.replace(/\D/g, '');
+
+		if (cep.length !== 8) {
+			alert("Digite um CEP válido com 8 dígitos.");
+			return;
+		}
+
+		fetch(`https://viacep.com.br/ws/${cep}/json/`)
+			.then(response => response.json())
+			.then(data => {
+				if (data.erro) {
+					alert("CEP não encontrado.");
+					return;
+				}
+
+				// Preenche os campos com os dados retornados
+				document.getElementById('id_logradouro').value = data.logradouro || '';
+				document.getElementById('id_bairro').value = data.bairro || '';
+				document.getElementById('id_cidade').value = data.localidade || '';
+				document.getElementById('id_uf').value = data.uf || '';
+			})
+			.catch(() => {
+				alert("Erro ao buscar o CEP. Tente novamente.");
+			});
+	}
+</script>
+
+{% endblock %}
