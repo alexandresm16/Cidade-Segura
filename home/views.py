@@ -11,7 +11,7 @@ class HomeView(TemplateView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         # Pegando apenas ocorrências pendentes
-        context['occurrences'] = Occurrence.objects.filter(status='pending')
+        context['occurrences'] = Occurrence.objects.order_by('created_at')
         return context
 
 class LoginView(TemplateView):

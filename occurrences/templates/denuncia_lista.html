@@ -1,0 +1,90 @@
+{% block head %}
+{% include "index.html" %}
+<link href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" rel="stylesheet"/>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+{% endblock %}
+{% load static %}
+{% block content %}
+{% load django_bootstrap5 %}
+{% bootstrap_messages %}
+
+<div class="m-5 text-center">
+	<h1><u> Denuncias pendentes de validação </u></h1>
+</div>
+<div class="row d-flex justify-content-center m-5">
+	{% for occurrence in occurrences %}
+	<div class="card m-2 col-4" style="width: 18rem;">
+		<div id="map-{{ occurrence.id }}" style="height: 180px;"></div>
+
+		<div class="card-body">
+			<h5 class="card-title">{{ occurrence.get_crime_type_display }}</h5>
+
+			<p class="card-text">
+				<strong>Descrição:</strong><br>
+				{{ occurrence.description|default:"Não informado" }}
+			</p>
+
+			<p class="card-text">
+				<strong>Referência:</strong><br>
+				{{ occurrence.reference|default:"Não informado" }}
+			</p>
+
+			<form action="{% url 'occurrence_vote' occurrence.id %}"
+			      method="post">
+				{% csrf_token %}
+
+				{% for radio in vote_form.vote %}
+				<div class="form-check">
+					{{ radio.tag }}
+					<label class="form-check-label">
+						{{ radio.choice_label }}
+					</label>
+				</div>
+				{% endfor %}
+
+				<button class="btn btn-primary btn-sm mt-2" type="submit">
+					Confirmar voto
+				</button>
+			</form>
+		</div>
+	</div>
+	{% endfor %}
+
+</div>
+
+<script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+<script>
+	var icons = {
+		theft: new L.Icon({iconUrl: 'https://cdn-icons-png.flaticon.com/512/11389/11389907.png', iconSize:[32,32], iconAnchor:[16,32], popupAnchor:[0,-32]}),
+		robbery: new L.Icon({iconUrl: 'https://cdn-icons-png.flaticon.com/512/2861/2861341.png', iconSize:[32,32], iconAnchor:[16,32], popupAnchor:[0,-32]}),
+		assault: new L.Icon({iconUrl: 'https://cdn-icons-png.flaticon.com/512/10036/10036666.png', iconSize:[32,32], iconAnchor:[16,32], popupAnchor:[0,-32]}),
+		gunshot: new L.Icon({iconUrl: 'https://cdn-icons-png.flaticon.com/512/9001/9001136.png', iconSize:[32,32], iconAnchor:[16,32], popupAnchor:[0,-32]}),
+		car: new L.Icon({iconUrl: 'https://cdn-icons-png.flaticon.com/512/2125/2125959.png', iconSize:[32,32], iconAnchor:[16,32], popupAnchor:[0,-32]}),
+		other: new L.Icon({iconUrl: 'https://cdn-icons-png.flaticon.com/512/16935/16935760.png', iconSize:[32,32], iconAnchor:[16,32], popupAnchor:[0,-32]})
+	};
+
+	{% for occurrence in occurrences %}
+		(function () {
+			var lat = parseFloat("{{ occurrence.latitude }}".replace(',', '.'));
+			var lon = parseFloat("{{ occurrence.longitude }}".replace(',', '.'));
+			var tipo = "{{ occurrence.crime_type }}";
+
+			if (isNaN(lat) || isNaN(lon)) return;
+
+			var map = L.map('map-{{ occurrence.id }}', {
+				attributionControl: false,
+				zoomControl: false
+			}).setView([lat, lon], 15);
+
+			L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+				maxZoom: 20
+			}).addTo(map);
+
+			L.marker([lat, lon], {icon: icons[tipo] || icons.other})
+				.addTo(map);
+		})();
+	{% endfor %}
+</script>
+
+
+{% endblock %}

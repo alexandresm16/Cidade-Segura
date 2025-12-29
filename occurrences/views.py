@@ -1,7 +1,9 @@
 import requests
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.messages.views import SuccessMessageMixin
-from django.views.generic import CreateView, DetailView
+from django.views.generic import CreateView, DetailView, ListView
+
+from occurrencesvote.forms import OccurrenceVoteForm
 from .models import Occurrence
 from .forms import OccurrenceForm
 from django.http import JsonResponse
@@ -83,3 +85,20 @@ class OccurrenceDetailView(DetailView):
     model = Occurrence
     template_name = 'denuncia_detalhes.html'
     context_object_name = 'occurrence'
+
+
+class OccurrenceListView(ListView):
+    model = Occurrence
+    template_name = 'denuncia_lista.html'
+    context_object_name = 'occurrences'
+
+    def get_queryset(self):
+        user = self.request.user
+        return Occurrence.objects.filter(status='pending') \
+            .exclude(votes__user=user) \
+            .order_by('created_at')
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['vote_form'] = OccurrenceVoteForm()
+        return context

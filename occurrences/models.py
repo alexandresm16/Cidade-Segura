@@ -1,5 +1,6 @@
 from django.db import models
 from django.contrib.auth import get_user_model
+from django.db.models import Sum, F, Case, When, FloatField
 
 User = get_user_model()
 
@@ -67,3 +68,28 @@ class Occurrence(models.Model):
 
     def __str__(self):
         return f'{self.get_crime_type_display()} - {self.bairro} - {self.cidade}/{self.uf}'
+
+    def credibility_score(self):
+        result = self.votes.aggregate(
+            score=Sum(
+                Case(
+                    When(vote='confirm', then=F('weight')),
+                    When(vote='deny', then=-F('weight')),
+                    default=0,
+                    output_field=FloatField()
+                )
+            )
+        )
+        return result['score'] or 0
+
+    def update_status_by_votes(self):
+        score = self.credibility_score()
+
+        if score >= 2:
+            self.status = 'approved'
+        elif score <= -3:
+            self.status = 'rejected'
+        else:
+            self.status = 'pending'
+
+        self.save(update_fields=['status'])
