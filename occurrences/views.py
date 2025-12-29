@@ -1,63 +1,55 @@
-from django.shortcuts import render
 import requests
-from django.views.generic import CreateView
+from django.contrib.auth.mixins import LoginRequiredMixin
+from django.contrib.messages.views import SuccessMessageMixin
+from django.views.generic import CreateView, DetailView
 from .models import Occurrence
 from .forms import OccurrenceForm
 from django.http import JsonResponse
 from django.urls import reverse_lazy
 
 
-class OccurrenceCreateView(CreateView):
+class OccurrenceCreateView(LoginRequiredMixin, SuccessMessageMixin, CreateView):
     model = Occurrence
     form_class = OccurrenceForm
     template_name = 'denunciar.html'
-    success_url = reverse_lazy('/')
-    success_message = 'Denuncia realizada com sucesso.'
+    success_url = reverse_lazy('home')
+    success_message = 'Denúncia realizada com sucesso.'
+    login_url = 'login'  # nome da URL de login
+    redirect_field_name = 'next'  # opcional (padrão)
 
     def form_valid(self, form):
-        if self.request.user.is_authenticated:
-            form.instance.reporter = self.request.user
+        form.instance.reporter = self.request.user
 
-            occurrence = form.save(commit=False)
-            # Montar endereço para geocoding
-            endereco = f"{occurrence.logradouro}, 0, {occurrence.bairro}, {occurrence.cidade}, {occurrence.uf}, Brasil"
+        occurrence = form.save(commit=False)
 
-            # URL da API do LocationIQ
-            url = "https://us1.locationiq.com/v1/search"
+        endereco = f"{occurrence.logradouro}, 0, {occurrence.bairro}, {occurrence.cidade}, {occurrence.uf}, Brasil"
 
-            # Substitua com sua chave real
-            API_KEY = 'pk.e03fb0df144869447ee210c6ba631214'
+        # URL da API do LocationIQ
+        url = "https://us1.locationiq.com/v1/search"
 
-            params = {
-                'key': API_KEY,
-                'q': endereco,
-                'format': 'json',
-                'limit': 1
-            }
+        # Substitua com sua chave real
+        API_KEY = 'pk.e03fb0df144869447ee210c6ba631214'
 
-            try:
-                response = requests.get(url, params=params, timeout=5)
-                response.raise_for_status()
+        params = {
+            'key': API_KEY,
+            'q': endereco,
+            'format': 'json',
+            'limit': 1
+        }
 
-                data = response.json()
-                if data:
-                    resultado = data[0]
-                    occurrence.latitude = resultado.get('lat')
-                    occurrence.longitude = resultado.get('lon')
-                else:
-                    occurrence.latitude = None
-                    occurrence.longitude = None
+        try:
+            response = requests.get(url, params=params, timeout=5)
+            response.raise_for_status()
+            data = response.json()
 
-            except (requests.RequestException, KeyError, IndexError) as e:
-                # Log de erro
-                print(f"Erro ao buscar geolocalização: {e}")
-                occurrence.latitude = None
-                occurrence.longitude = None
+            if data:
+                occurrence.latitude = data[0].get('lat')
+                occurrence.longitude = data[0].get('lon')
 
-            occurrence.save()
-            return super().form_valid(form)
-        else:
-            print("Não está logado!!!")
+        except requests.RequestException as e:
+            print(f"Erro ao buscar geolocalização: {e}")
+
+        return super().form_valid(form)
 
 
 def reverse_geocode(request):
@@ -85,3 +77,9 @@ def reverse_geocode(request):
         return JsonResponse({'error': 'Erro ao consultar o Nominatim'}, status=500)
 
     return JsonResponse(response.json())
+
+
+class OccurrenceDetailView(DetailView):
+    model = Occurrence
+    template_name = 'denuncia_detalhes.html'
+    context_object_name = 'occurrence'

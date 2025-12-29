@@ -1,0 +1,61 @@
+{% block head %}
+{% include "index.html" %}
+{% endblock %}
+{% load static %}
+{% block content %}
+{% load django_bootstrap5 %}
+{% bootstrap_messages %}
+
+<link href="https://unpkg.com/leaflet/dist/leaflet.css" rel="stylesheet"/>
+<h1 class="text-center pt-5"><u>Detalhes da Ocorrência</u></h1>
+<div class="p-3" style="font-size: 20px;">
+	<div class="col-off-2 col-4">
+		<p><strong>Tipo:</strong> {{ occurrence.get_crime_type_display }}</p>
+		{% if occurrence.description %}
+		<p><strong>Descrição:</strong> {{ occurrence.description }}</p>
+		{% endif %}
+		{% if occurrence.reference %}
+		<p><strong>Referência:</strong> {{ occurrence.reference }}</p>
+		{% endif %}
+	</div>
+
+</div>
+<div class="px-3 mt-5 col-6">
+	<p class="text-secondary"><strong>Endereço apróximado:</strong> {{ occurrence.logradouro }},
+		{{ occurrence.bairro }}, {{ occurrence.cidade }}/{{ occurrence.uf }}, CEP: {{ occurrence.cep }}</p>
+</div>
+<!-- Mapa -->
+<div id="map" style="height: 550px;"></div>
+
+<script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+<script>
+	var icons = {
+		theft: new L.Icon({iconUrl: 'https://cdn-icons-png.flaticon.com/512/11389/11389907.png', iconSize:[32,32], iconAnchor:[16,32], popupAnchor:[0,-32]}),
+		robbery: new L.Icon({iconUrl: 'https://cdn-icons-png.flaticon.com/512/2861/2861341.png', iconSize:[32,32], iconAnchor:[16,32], popupAnchor:[0,-32]}),
+		assault: new L.Icon({iconUrl: 'https://cdn-icons-png.flaticon.com/512/10036/10036666.png', iconSize:[32,32], iconAnchor:[16,32], popupAnchor:[0,-32]}),
+		gunshot: new L.Icon({iconUrl: 'https://cdn-icons-png.flaticon.com/512/9001/9001136.png', iconSize:[32,32], iconAnchor:[16,32], popupAnchor:[0,-32]}),
+		car: new L.Icon({iconUrl: 'https://cdn-icons-png.flaticon.com/512/2125/2125959.png', iconSize:[32,32], iconAnchor:[16,32], popupAnchor:[0,-32]}),
+		other: new L.Icon({iconUrl: 'https://cdn-icons-png.flaticon.com/512/16935/16935760.png', iconSize:[32,32], iconAnchor:[16,32], popupAnchor:[0,-32]})
+	};
+
+	// Define latitude, longitude e tipo
+	var lat = parseFloat("{{ occurrence.latitude }}".replace(',', '.'));
+	var lon = parseFloat("{{ occurrence.longitude }}".replace(',', '.'));
+	var tipo = "{{ occurrence.crime_type }}";  // <-- ESSENCIAL
+
+	var map = L.map('map').setView([lat, lon], 16);
+
+	L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+		maxZoom: 20,
+		attribution: '&copy; OpenStreetMap'
+	}).addTo(map);
+
+	// Marcador da ocorrência com ícone específico
+	L.marker([lat, lon], {icon: icons[tipo] || icons.other})
+		.addTo(map)
+		.bindPopup(`<b>{{ occurrence.get_crime_type_display }}</b><br>{{ occurrence.bairro }}, {{ occurrence.cidade }}`)
+		.openPopup();
+</script>
+
+
+{% endblock %}

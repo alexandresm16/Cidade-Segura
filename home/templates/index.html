@@ -33,6 +33,12 @@
 			<a class="navbar-item p-2" href="{% url 'denunciar' %}" style="color: white;">
 				Denunciar
 			</a>
+			<a class="navbar-item p-2" href="{% url 'login' %}" style="color: white; float: right;">
+				Login
+			</a>
+			<a class="navbar-item p-2" href="{% url 'admin:index' %}" style="color: white; float: right;">
+				Login Admin
+			</a>
 		</div>
 	</div>
 
@@ -40,12 +46,17 @@
 		<button aria-controls="navbarToggleExternalContent"
 		        aria-expanded="false"
 		        aria-label="Toggle navigation"
-		        class="navbar-toggler"
+		        class="navbar-toggler mx-3"
 		        data-bs-target="#navbarToggleExternalContent"
 		        data-bs-toggle="collapse"
 		        type="button">
 			<span class="navbar-toggler-icon"></span>
 		</button>
+		<div class="mx-3 bg-dark flex-grow-1 text-white" id="marquee-container">
+			<marquee behavior="scroll" direction="left">
+				Mostrando as últimas ocorrências cadastradas, ambiente ainda em desenvolvimento, todas as informações
+				contidas aqui são provenientes de testes e não refletem a realidade.
+			</marquee>
+		</div>
 	</nav>
 </div>
-

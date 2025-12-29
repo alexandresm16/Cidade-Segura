@@ -5,6 +5,55 @@
 {% block content %}
 {% load django_bootstrap5 %}
 {% bootstrap_messages %}
+<!-- CSS do Leaflet (você já incluiu) -->
+<link crossorigin="" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+      integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" rel="stylesheet"/>
 
+<!-- Script JS do Leaflet -->
+<script crossorigin="" src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+<section>
+	<div id="map" style="height: 1000px;"></div>
+</section>
+
+<!-- Leaflet CSS e JS -->
+<link href="https://unpkg.com/leaflet/dist/leaflet.css" rel="stylesheet"/>
+<script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+
+<script>
+	var map = L.map('map').setView([-29.7208831, -53.71733], 13);
+
+	L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+		maxZoom: 20,
+		attribution: '&copy; OpenStreetMap'
+	}).addTo(map);
+
+	// Ícones por tipo de crime
+	var icons = {
+		theft: new L.Icon({iconUrl: 'https://cdn-icons-png.flaticon.com/512/11389/11389907.png', iconSize:[32,32], iconAnchor:[16,32], popupAnchor:[0,-32]}),
+		robbery: new L.Icon({iconUrl: 'https://cdn-icons-png.flaticon.com/512/2861/2861341.png', iconSize:[32,32], iconAnchor:[16,32], popupAnchor:[0,-32]}),
+		assault: new L.Icon({iconUrl: 'https://cdn-icons-png.flaticon.com/512/10036/10036666.png', iconSize:[32,32], iconAnchor:[16,32], popupAnchor:[0,-32]}),
+		gunshot: new L.Icon({iconUrl: 'https://cdn-icons-png.flaticon.com/512/9001/9001136.png', iconSize:[32,32], iconAnchor:[16,32], popupAnchor:[0,-32]}),
+		car: new L.Icon({iconUrl: 'https://cdn-icons-png.flaticon.com/512/2125/2125959.png', iconSize:[32,32], iconAnchor:[16,32], popupAnchor:[0,-32]}),
+		other: new L.Icon({iconUrl: 'https://cdn-icons-png.flaticon.com/512/16935/16935760.png', iconSize:[32,32], iconAnchor:[16,32], popupAnchor:[0,-32]})
+	};
+
+	// Loop pelas ocorrências do contexto
+	{% for occurrence in occurrences %}
+		var lat = parseFloat("{{ occurrence.latitude }}".replace(',', '.'));
+		var lon = parseFloat("{{ occurrence.longitude }}".replace(',', '.'));
+		var tipo = "{{ occurrence.crime_type }}";
+
+		if (!isNaN(lat) && !isNaN(lon)) {
+			L.marker([lat, lon], {icon: icons[tipo] || icons.other})
+				.addTo(map)
+				.bindPopup(`
+					<b>{{ occurrence.occurred_at }}</b><br>
+					Tipo: {{ occurrence.get_crime_type_display }}<br>
+					<a href="{% url 'denuncia_detalhes' occurrence.pk %}" >Ver detalhes</a>
+				`);
+		}
+	{% endfor %}
+</script>
 
 {% endblock %}
