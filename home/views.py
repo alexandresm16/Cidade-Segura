@@ -13,6 +13,3 @@ class HomeView(TemplateView):
         # Pegando apenas ocorrências pendentes
         context['occurrences'] = Occurrence.objects.order_by('created_at')
         return context
-
-class LoginView(TemplateView):
-    template_name = 'login.html'

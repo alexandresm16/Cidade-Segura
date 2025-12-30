@@ -32,6 +32,7 @@
 			<form action="{% url 'occurrence_vote' occurrence.id %}"
 			      method="post">
 				{% csrf_token %}
+				{% bootstrap_messages %}
 
 				{% for radio in vote_form.vote %}
 				<div class="form-check">

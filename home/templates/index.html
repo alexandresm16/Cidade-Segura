@@ -36,12 +36,24 @@
 			<a class="navbar-item p-2" href="{% url 'denuncias_pendentes' %}" style="color: white;">
 				Denuncias Pendentes
 			</a>
+			{% if user.is_authenticated %}
+			<form action="{% url 'logout' %}" method="post" style="color: white; float: right;">
+				{% csrf_token %}
+				<button class="navbar-item p-2" style="color: white; background: none; border: none;" type="submit">
+					Sair
+				</button>
+			</form>
+			<span class="navbar-item p-2" style="color: white; float: right;">
+		        {{ user.username }}
+		    </span>
+			{% else %}
+			<a class="navbar-item p-2" href="{% url 'register' %}" style="color: white; float: right;">
+				Criar Conta
+			</a>
 			<a class="navbar-item p-2" href="{% url 'login' %}" style="color: white; float: right;">
 				Login
 			</a>
-			<a class="navbar-item p-2" href="{% url 'admin:index' %}" style="color: white; float: right;">
-				Login Admin
-			</a>
+			{% endif %}
 		</div>
 	</div>
 

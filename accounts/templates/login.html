@@ -1,0 +1,20 @@
+{% block head %}
+{% include "index.html" %}
+{% endblock %}
+{% load static %}
+{% block content %}
+{% load django_bootstrap5 %}
+{% bootstrap_messages %}
+<div class="container">
+	<div class="container mt-5">
+		<h2>Login</h2>
+		<form class="form" method="post">
+			{% csrf_token %}
+			{% bootstrap_messages %}
+			{% bootstrap_form form %}
+			<button class="btn btn-primary mt-3" type="submit">Entrar</button>
+		</form>
+	</div>
+</div>
+
+{% endblock %}
