@@ -87,7 +87,7 @@ class OccurrenceDetailView(DetailView):
     context_object_name = 'occurrence'
 
 
-class OccurrenceListView(ListView):
+class OccurrenceListView(LoginRequiredMixin, ListView):
     model = Occurrence
     template_name = 'denuncia_lista.html'
     context_object_name = 'occurrences'
@@ -96,6 +96,7 @@ class OccurrenceListView(ListView):
         user = self.request.user
         return Occurrence.objects.filter(status='pending') \
             .exclude(votes__user=user) \
+            .exclude(reporter=user) \
             .order_by('created_at')
 
     def get_context_data(self, **kwargs):

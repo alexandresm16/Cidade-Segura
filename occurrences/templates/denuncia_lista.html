@@ -1,7 +1,6 @@
 {% block head %}
+{% include "head.html" %}
 {% include "index.html" %}
-<link href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" rel="stylesheet"/>
-<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 {% endblock %}
 {% load static %}
 {% block content %}
@@ -32,7 +31,6 @@
 			<form action="{% url 'occurrence_vote' occurrence.id %}"
 			      method="post">
 				{% csrf_token %}
-				{% bootstrap_messages %}
 
 				{% for radio in vote_form.vote %}
 				<div class="form-check">

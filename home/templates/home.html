@@ -1,24 +1,14 @@
 {% block head %}
+{% include "head.html" %}
 {% include "index.html" %}
 {% endblock %}
 {% load static %}
 {% block content %}
 {% load django_bootstrap5 %}
 {% bootstrap_messages %}
-<!-- CSS do Leaflet (você já incluiu) -->
-<link crossorigin="" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
-      integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" rel="stylesheet"/>
-
-<!-- Script JS do Leaflet -->
-<script crossorigin="" src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-
 <section>
 	<div id="map" style="height: 1000px;"></div>
 </section>
-
-<!-- Leaflet CSS e JS -->
-<link href="https://unpkg.com/leaflet/dist/leaflet.css" rel="stylesheet"/>
-<script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
 
 <script>
 	var map = L.map('map').setView([-29.7208831, -53.71733], 13);
