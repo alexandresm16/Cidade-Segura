@@ -10,6 +10,8 @@
 
 </style>
 <body>
+{% load static %}
+<script src="{% static 'js/leaflet_icons.js' %}"></script>
 <div class="pos-f-t">
 	<div class="collapse" id="navbarToggleExternalContent">
 		<div class="bg-dark p-4">
@@ -31,7 +33,7 @@
 			</form>
 			<span class="navbar-item mx-3 p-2" style="color: white; float: right;">
 		        <a href="{% url 'user' %}">
-			        {{ user.username }}
+			        Usuário: {{ user.username }}
 		        </a>
 		    </span>
 			{% else %}
@@ -45,34 +47,27 @@
 		</div>
 	</div>
 
-	<nav class="navbar navbar-dark bg-dark">
+	<nav class="navbar navbar-dark bg-dark" style="justify-content: flex-start;">
 		<button aria-controls="navbarToggleExternalContent"
 		        aria-expanded="false"
 		        aria-label="Toggle navigation"
-		        class="navbar-toggler mx-3"
+		        class="navbar-toggler mx-5"
 		        data-bs-target="#navbarToggleExternalContent"
 		        data-bs-toggle="collapse"
 		        type="button">
 			<span class="navbar-toggler-icon"></span>
 		</button>
-		<div class="m-1 bg-dark text-white" id="marquee-container">
-			<div class="marquee-container">
+		<div class="bg-dark text-white" id="marquee-container">
+			<div class="marquee">
 				<div class="marquee-content">
 					<i class="fa-solid fa-triangle-exclamation pe-3"></i>
-					Mostrando as últimas ocorrências cadastradas, ambiente ainda em desenvolvimento, as
-					informações não refletem a realidade.
+					Mostrando as últimas ocorrências cadastradas, ambiente ainda em desenvolvimento,
+					as informações não refletem a realidade.
 					{% if clima %}
-					<i class="fa-solid fa-location-dot ps-3"></i>
-					{{ clima.city }}
-
-					<i class="fa-solid fa-temperature-half ps-3"></i>
-					{{ clima.temperature }}°C
-
-					<i class="fa-solid fa-cloud ps-3"></i>
-					{{ clima.description|capfirst }}
-
-					<i class="fa-solid fa-time ps-3"></i>
-					{{ data }}
+					<i class="fa-solid fa-location-dot ps-3"></i> {{ clima.city }}
+					<i class="fa-solid fa-temperature-half ps-3"></i> {{ clima.temperature }}°C
+					<i class="fa-solid fa-cloud ps-3"></i> {{ clima.description|capfirst }}
+					<i class="fa-solid fa-calendar-days ps-3"></i> {{ data }}
 					{% endif %}
 				</div>
 			</div>

@@ -4,15 +4,12 @@
     border-radius: 14px;
     box-shadow: 0 12px 40px rgba(0,0,0,0.2);
 }
-
-.marquee-wrapper {
-    flex: 1 1 auto;   /* cresce e encolhe corretamente */
-    min-width: 0;     /* CRÍTICO para flexbox */
+#marquee-container {
+    flex: 1;
     overflow: hidden;
 }
 
-.marquee-container {
-    align-items: center;
+.marquee {
     overflow: hidden;
 }
 
@@ -22,12 +19,15 @@
     animation: scroll-left 30s linear infinite;
 }
 
+.marquee:hover .marquee-content {
+    animation-play-state: paused;
+}
 
 @keyframes scroll-left {
     0% {
         transform: translateX(0);
     }
     100% {
-        transform: translateX(-100%);
+        transform: translateX(-150%);
     }
 }
