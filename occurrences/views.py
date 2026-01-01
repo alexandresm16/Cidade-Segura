@@ -1,13 +1,29 @@
 import requests
+from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.messages.views import SuccessMessageMixin
-from django.views.generic import CreateView, DetailView, ListView
-
+from django.views.generic import CreateView, DetailView, ListView, DeleteView
 from occurrencesvote.forms import OccurrenceVoteForm
 from .models import Occurrence
 from .forms import OccurrenceForm
-from django.http import JsonResponse
+from django.http import JsonResponse, Http404
 from django.urls import reverse_lazy
+
+
+class OccurrenceDeleteView(LoginRequiredMixin, SuccessMessageMixin, DeleteView):
+    model = Occurrence
+    success_url = reverse_lazy('user')
+    success_message = 'Denúncia excluída com sucesso.'
+
+    def get_object(self, queryset=None):
+        obj = super().get_object(queryset)
+        if obj.reporter != self.request.user:
+            raise Http404("Você não tem permissão para excluir esta denúncia.")
+        return obj
+
+    def delete(self, request, *args, **kwargs):
+        messages.success(self.request, self.success_message)
+        return super().delete(request, *args, **kwargs)
 
 
 class OccurrenceCreateView(LoginRequiredMixin, SuccessMessageMixin, CreateView):

@@ -1,4 +1,5 @@
 # accounts/views.py
+from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.models import User
 from django.contrib.auth.tokens import default_token_generator
 from django.contrib import messages
@@ -9,7 +10,10 @@ from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
 from django.utils.encoding import force_bytes, force_str
 from django.views.generic import CreateView, View
 from django.contrib.messages.views import SuccessMessageMixin
+
+from occurrences.models import Occurrence
 from .forms import UserRegisterForm
+from django.views.generic import ListView
 from django.contrib.auth.views import LoginView, LogoutView
 from django.contrib.auth import logout
 from .forms import UserLoginForm
@@ -76,3 +80,13 @@ class UserLogoutView(LogoutView):
         logout(request)
         messages.success(request, "Você saiu da sua conta com sucesso!")
         return redirect('home')  # redireciona para home
+
+
+class OccurrenceListView(LoginRequiredMixin, ListView):
+    model = Occurrence
+    template_name = 'user.html'
+    context_object_name = 'occurrences'
+
+    def get_queryset(self):
+        user = self.request.user
+        return Occurrence.objects.filter(reporter=user).order_by('created_at')

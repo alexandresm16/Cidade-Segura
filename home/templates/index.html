@@ -30,7 +30,9 @@
 				</button>
 			</form>
 			<span class="navbar-item mx-3 p-2" style="color: white; float: right;">
-		        {{ user.username }}
+		        <a href="{% url 'user' %}">
+			        {{ user.username }}
+		        </a>
 		    </span>
 			{% else %}
 			<a class="navbar-item p-2" href="{% url 'register' %}" style="color: white; float: right;">

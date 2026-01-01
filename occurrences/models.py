@@ -18,6 +18,7 @@ class Occurrence(models.Model):
         ('assault', 'Agressão'),
         ('gunshot', 'Disparo de arma'),
         ('car', 'Acidente de trânsito'),
+        ('fire', 'incêndio'),
         ('other', 'Outro'),
     ]
 
