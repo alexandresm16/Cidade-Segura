@@ -1,4 +1,6 @@
 import requests
+from datetime import timedelta
+from django.utils import timezone
 from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.messages.views import SuccessMessageMixin
@@ -38,6 +40,27 @@ class OccurrenceCreateView(LoginRequiredMixin, SuccessMessageMixin, CreateView):
     def form_valid(self, form):
         form.instance.reporter = self.request.user
 
+        # dentro do form_valid
+        limite = 5
+        user = self.request.user
+
+        # Limite das últimas 24 horas
+        limite_24h = timezone.now() - timedelta(hours=24)
+
+        denuncias_ultimas_24h = Occurrence.objects.filter(
+            reporter=user,
+            created_at__gte=limite_24h
+        ).count()
+
+        if denuncias_ultimas_24h >= limite:
+            messages.error(
+                self.request,
+                f"Você já atingiu o limite de {limite} denúncias nas últimas 24 horas."
+            )
+            return self.form_invalid(form)
+
+        form.instance.reporter = user
+
         occurrence = form.save(commit=False)
 
         endereco = f"{occurrence.logradouro}, 0, {occurrence.bairro}, {occurrence.cidade}, {occurrence.uf}, Brasil"
@@ -45,7 +68,6 @@ class OccurrenceCreateView(LoginRequiredMixin, SuccessMessageMixin, CreateView):
         # URL da API do LocationIQ
         url = "https://us1.locationiq.com/v1/search"
 
-        # Substitua com sua chave real
         API_KEY = 'pk.e03fb0df144869447ee210c6ba631214'
 
         params = {
@@ -110,12 +132,18 @@ class OccurrenceListView(LoginRequiredMixin, ListView):
 
     def get_queryset(self):
         user = self.request.user
-        return Occurrence.objects.filter(status='pending') \
-            .exclude(votes__user=user) \
-            .exclude(reporter=user) \
+        return (
+            Occurrence.objects
+            .filter(status='pending')
+            .exclude(votes__user=user)
+            .exclude(reporter=user)
             .order_by('created_at')
+        )
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['vote_form'] = OccurrenceVoteForm()
+
+        for occurrence in context['occurrences']:
+            occurrence.vote_form = OccurrenceVoteForm()
+
         return context

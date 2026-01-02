@@ -7,5 +7,9 @@ class OccurrenceVoteForm(forms.ModelForm):
         model = OccurrenceVote
         fields = ['vote']
         widgets = {
-            'vote': forms.RadioSelect()
+            'vote': forms.Select(attrs={'class': 'form-select'}),
         }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['vote'].choices = list(self.fields['vote'].choices)

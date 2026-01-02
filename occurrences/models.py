@@ -33,6 +33,7 @@ class Occurrence(models.Model):
     cidade = models.CharField('Cidade', max_length=50, null=False, blank=False)
     uf = models.CharField('UF', max_length=20, null=False, blank=False)
     cep = models.CharField('CEP', max_length=9, null=False, blank=False)
+    link = models.TextField(max_length=300, blank=True)
 
     latitude = models.DecimalField(
         'Latitude',

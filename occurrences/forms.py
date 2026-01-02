@@ -1,5 +1,6 @@
 from django import forms
 from .models import Occurrence
+from django.utils import timezone
 
 
 class OccurrenceForm(forms.ModelForm):
@@ -8,7 +9,9 @@ class OccurrenceForm(forms.ModelForm):
         widget=forms.DateTimeInput(
             attrs={
                 'type': 'datetime-local',
-                'class': 'form-control'
+                'class': 'form-control',
+                # Limite no front-end também
+                'max': timezone.localtime(timezone.now()).strftime('%Y-%m-%dT%H:%M')
             }
         )
     )
@@ -72,3 +75,9 @@ class OccurrenceForm(forms.ModelForm):
             'latitude': 'Latitude',
             'longitude': 'Longitude',
         }
+
+    def clean_occurred_at(self):
+        data = self.cleaned_data['occurred_at']
+        if data > timezone.now():
+            raise forms.ValidationError("A data da ocorrência não pode ser no futuro.")
+        return data

@@ -1,3 +1,4 @@
+#models.py
 from django.db import models
 from occurrences.models import Occurrence
 from accounts.models import User
@@ -10,6 +11,7 @@ class OccurrenceVote(models.Model):
         ('confirm', 'Confirmo'),
         ('deny', 'Não procede'),
         ('unsure', 'Informação insuficiente'),
+        ('reported', 'Já reportado'),
     ]
 
     occurrence = models.ForeignKey(

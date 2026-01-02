@@ -10,7 +10,7 @@
 <link href="https://unpkg.com/leaflet/dist/leaflet.css" rel="stylesheet"/>
 <h1 class="text-center pt-5"><u>Detalhes da Ocorrência</u></h1>
 <div class="p-3" style="font-size: 20px;">
-	<div class="col-off-2 col-4">
+	<div class="ps-3">
 		<p><strong>Tipo:</strong> {{ occurrence.get_crime_type_display }}</p>
 		{% if occurrence.description %}
 		<p><strong>Descrição:</strong> {{ occurrence.description }}</p>
@@ -18,10 +18,17 @@
 		{% if occurrence.reference %}
 		<p><strong>Referência:</strong> {{ occurrence.reference }}</p>
 		{% endif %}
+        {% if occurrence.link %}
+		<p class="pt-4"><strong>Link da notícia:</strong>
+            <a href="{{ occurrence.link }}" target="_blank" rel="noopener noreferrer">
+                {{ occurrence.link }}
+            </a>
+        </p>
+		{% endif %}
 	</div>
 
 </div>
-<div class="px-3 mt-5 col-6">
+<div class="px-3 mt-5">
 	<p class="text-secondary"><strong>Endereço apróximado:</strong> {{ occurrence.logradouro }},
 		{{ occurrence.bairro }}, {{ occurrence.cidade }}/{{ occurrence.uf }}, CEP: {{ occurrence.cep }}</p>
 </div>

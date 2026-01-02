@@ -28,7 +28,9 @@
 		</form>
 
 		<div class="card-body">
-			<h5 class="card-title">{{ occurrence.get_crime_type_display }}</h5>
+			<h5 class="h4 card-title">{{ occurrence.get_crime_type_display }}</h5>
+
+            <hr>
 
 			<p class="card-text">
 				<strong>Descrição:</strong><br>
@@ -40,14 +42,19 @@
 				{{ occurrence.reference|default:"Não informado" }}
 			</p>
 
-			<p class="card-text">
-				<strong>Data da ocorrência:</strong><br>
-				{{ occurrence.occurred_at|default:"Não informado" }}
+            <p class="card-text">
+				<strong>Denuncia ocorrida na data de:</strong><br>
+				{{ occurrence.occurred_at|date:"d/m/Y H:i" }}
 			</p>
 
-			<p class="card-text">
-				<strong>Data do cadastro:</strong><br>
-				{{ occurrence.created_at|default:"Não informado" }}
+            <p class="card-text">
+				<strong>Denuncia realizada em:</strong><br>
+				{{ occurrence.created_at|date:"d/m/Y" }}
+			</p>
+
+            <p class="card-text">
+				<strong>Status:</strong><br>
+				{{ occurrence.status }}
 			</p>
 		</div>
 		<div class="modal fade" id="deleteModal{{ occurrence.id }}" tabindex="-1">
