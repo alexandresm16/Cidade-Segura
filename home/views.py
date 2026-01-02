@@ -15,10 +15,16 @@ class HomeView(TemplateView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
 
-        context['occurrences'] = Occurrence.objects.order_by('created_at')
+        agora_local = timezone.localtime(timezone.now())  # horário local
+        data_limite = agora_local - timedelta(days=30)  # 30 dias atrás
 
+        # Filtra apenas ocorrências aprovadas nos últimos 30 dias
+        context['occurrences'] = Occurrence.objects.filter(
+            occurred_at__gte=data_limite
+        ).order_by('created_at')
+
+        # Clima
         clima = Weather.objects.last()
-        agora_local = timezone.localtime(timezone.now())  # pega horário local
         context['data'] = agora_local
 
         # Atualiza o clima se estiver vazio ou se tiver mais de 1 hora

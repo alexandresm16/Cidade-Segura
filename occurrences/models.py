@@ -84,8 +84,11 @@ class Occurrence(models.Model):
         )
         return result['score'] or 0
 
+
     def update_status_by_votes(self):
         score = self.credibility_score()
+
+        status_anterior = self.status  # salva status antigo
 
         if score >= 2:
             self.status = 'approved'
@@ -95,3 +98,8 @@ class Occurrence(models.Model):
             self.status = 'pending'
 
         self.save(update_fields=['status'])
+
+        # Atualiza UserProfile apenas se o status mudou para approved ou rejected
+        if self.status != status_anterior and self.status in ['approved', 'rejected']:
+            if hasattr(self.reporter, 'profile'):
+                self.reporter.profile.update_after_occurrence(self.status)

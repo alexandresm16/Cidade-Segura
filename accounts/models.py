@@ -17,3 +17,21 @@ class UserProfile(models.Model):
 
     def __str__(self):
         return self.user.username
+
+    def update_after_occurrence(self, occurrence_status):
+        """
+        Atualiza os contadores e a reputação do usuário com base no status da ocorrência.
+        :param occurrence_status: string: 'approved', 'rejected' ou 'pending'
+        """
+        if occurrence_status == 'approved':
+            self.reports_approved += 1
+        elif occurrence_status == 'rejected':
+            self.reports_rejected += 1
+        # 'pending' não altera contadores
+
+        # Atualiza a reputação
+        # Exemplo simples: reputação = 1 + approved - rejected
+        # Você pode adaptar a fórmula conforme quiser
+        self.reputation_score = 1 + self.reports_approved/4 - self.reports_rejected/2
+
+        self.save(update_fields=['reports_approved', 'reports_rejected', 'reputation_score'])

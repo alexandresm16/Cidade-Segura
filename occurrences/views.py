@@ -132,12 +132,16 @@ class OccurrenceListView(LoginRequiredMixin, ListView):
 
     def get_queryset(self):
         user = self.request.user
+
+        agora_local = timezone.localtime(timezone.now())  # horário local
+        data_limite = agora_local - timedelta(days=30)  # 30 dias atrás
         return (
             Occurrence.objects
-            .filter(status='pending')
+            .filter(occurred_at__gte=data_limite)
             .exclude(votes__user=user)
             .exclude(reporter=user)
-            .order_by('created_at')
+            .exclude(status='rejected')
+            .order_by('-occurred_at')
         )
 
     def get_context_data(self, **kwargs):

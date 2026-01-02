@@ -16,8 +16,8 @@
         <div class="pt-2">
             <div id="map-{{ occurrence.id }}" style="height: 180px;"></div>
         </div>
-        <div class="py-2">
-            <h5 class="text-center h2"><u> {{ occurrence.get_crime_type_display }} </u></h5>
+        <div class="pt-3 text-capitalize">
+            <h5 class="text-center h4"><u> <b>{{ occurrence.get_crime_type_display }}</b> </u></h5>
         </div>
 
         <hr>
@@ -43,6 +43,11 @@
 				<strong>Denuncia realizada em:</strong><br>
 				{{ occurrence.created_at|date:"d/m/Y" }}
 			</p>
+
+            <p class="card-text">
+                <strong>Credibilidade do Denunciante:</strong><br>
+                {{ occurrence.reporter.profile.reputation_score }}
+            </p>
 
             <div class="pt-3">
                 <form method="post" action="{% url 'occurrence_vote' occurrence.id %}">
