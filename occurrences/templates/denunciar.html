@@ -16,216 +16,237 @@
     z-index: 9999;
     text-align: center;
 ">
-    <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);">
-        <div class="spinner-border text-primary" role="status" style="width: 3rem; height: 3rem;">
-            <span class="visually-hidden">Carregando...</span>
-        </div>
-        <p class="mt-2 fw-bold">Carregando localização...</p>
-    </div>
+	<div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);">
+		<div class="spinner-border text-primary" role="status" style="width: 3rem; height: 3rem;">
+			<span class="visually-hidden">Carregando...</span>
+		</div>
+		<p class="mt-2 fw-bold" id="loading-text">Carregando...</p>
+	</div>
 </div>
 
 <section class="py-5 bg-light">
-    <div class="container">
-        <div class="row justify-content-center">
-            <div class="col-lg-10">
+	<div class="container">
+		<div class="row justify-content-center">
+			<div class="col-lg-10">
 
-                <h2 class="mb-4 text-center">Registrar Ocorrência</h2>
+				<h2 class="mb-4 text-center">Registrar Ocorrência</h2>
 
-                <form enctype="multipart/form-data" method="post">
-                    {% csrf_token %}
-                    {% bootstrap_messages %}
+				<form enctype="multipart/form-data" method="post">
+					{% csrf_token %}
+					{% bootstrap_messages %}
 
-                    <!-- Tipo da Ocorrência -->
-                    <div class="my-4 border-bottom border-3 border-primary">
-                        <h5 class="text-primary pt-3">Tipo da Ocorrência</h5>
-                        <div class="row">
-                            <div class="col-md-6">
-                                {% bootstrap_field form.crime_type %}
-                            </div>
-                            <div class="col-md-6">
-                                {% bootstrap_field form.occurred_at %}
-                            </div>
-                        </div>
-                    </div>
+					<!-- Tipo da Ocorrência -->
+					<div class="my-4 border-bottom border-3 border-primary">
+						<h5 class="text-primary pt-3">Tipo da Ocorrência</h5>
+						<div class="row">
+							<div class="col-md-6">
+								{% bootstrap_field form.crime_type %}
+							</div>
+							<div class="col-md-6">
+								{% bootstrap_field form.occurred_at %}
+							</div>
+						</div>
+					</div>
 
-                    <!-- Localização -->
-                    <div class="my-4 border-bottom border-3 border-primary">
-                        <h5 class="text-primary pt-3">Localização</h5>
-                        <div class="row">
+					<!-- Localização -->
+					<div class="my-4 border-bottom border-3 border-primary">
+						<h5 class="text-primary pt-3">Localização</h5>
+						<div class="row">
 
-                            <!-- Mapa -->
-                            <div class="my-4 border-bottom border-3 border-primary">
-                                <h5 class="text-primary pt-3">Selecione o Local no Mapa</h5>
-                                <div id="map" style="height: 400px; width: 100%;"></div>
-                            </div>
+							<!-- Mapa -->
+							<div class="my-4 border-bottom border-3 border-primary">
+								<h5 class="text-primary pt-3">Selecione o Local no Mapa</h5>
+								<div id="map" style="height: 400px; width: 100%;"></div>
+							</div>
 
-                            <div class="d-none">
-                                <div class="row">
-                                    <div class="col-md-6">
-                                        {% bootstrap_field form.latitude %}
-                                    </div>
-                                    <div class="col-md-6">
-                                        {% bootstrap_field form.longitude %}
-                                    </div>
-                                </div>
-                            </div>
+							<div class="d-none">
+								<div class="row">
+									<div class="col-md-6">
+										{% bootstrap_field form.latitude %}
+									</div>
+									<div class="col-md-6">
+										{% bootstrap_field form.longitude %}
+									</div>
+								</div>
+							</div>
 
-                            <div class="col-md-12 pb-5">
-                                <div>{% bootstrap_field form.cep %}</div>
-                                <button class="btn btn-sm btn-primary" type="button" onclick="buscarEndereco()">Buscar</button>
-                            </div>
-                            <div class="alert alert-danger d-none" id="cep-alert" role="alert"></div>
+							<div class="col-md-12 pb-5">
+								<div>{% bootstrap_field form.cep %}</div>
+								<button class="btn btn-sm btn-primary" onclick="buscarEndereco()" type="button">Buscar
+								</button>
+							</div>
+							<div class="alert alert-danger d-none" id="cep-alert" role="alert"></div>
 
-                            <div class="col-md-8">
-                                {% bootstrap_field form.logradouro %}
-                            </div>
+							<div class="col-md-8">
+								{% bootstrap_field form.logradouro %}
+							</div>
 
-                            <div class="col-md-4">
-                                {% bootstrap_field form.bairro %}
-                            </div>
+							<div class="col-md-4">
+								{% bootstrap_field form.bairro %}
+							</div>
 
-                            <div class="col-md-6">
-                                {% bootstrap_field form.cidade %}
-                            </div>
+							<div class="col-md-6">
+								{% bootstrap_field form.cidade %}
+							</div>
 
-                            <div class="col-md-2">
-                                {% bootstrap_field form.uf %}
-                            </div>
-                        </div>
-                    </div>
+							<div class="col-md-2">
+								{% bootstrap_field form.uf %}
+							</div>
+						</div>
+					</div>
 
-                    <!-- Informações adicionais -->
-                    <div class="my-4 border-bottom border-3 border-primary">
-                        <h5 class="text-primary pt-3">Informações Adicionais</h5>
-                        <div class="row">
-                            <div class="col-12">
-                                {% bootstrap_field form.description %}
-                            </div>
-                            <div class="col-12">
-                                {% bootstrap_field form.reference %}
-                            </div>
-                        </div>
-                    </div>
+					<!-- Informações adicionais -->
+					<div class="my-4 border-bottom border-3 border-primary">
+						<h5 class="text-primary pt-3">Informações Adicionais</h5>
+						<div class="row">
+							<div class="col-12">
+								{% bootstrap_field form.description %}
+							</div>
+							<div class="col-12">
+								{% bootstrap_field form.reference %}
+							</div>
+						</div>
+					</div>
 
-                    <!-- Botões -->
-                    <div class="text-end mt-4">
-                        <button class="btn btn-success" type="submit">Registrar Ocorrência</button>
-                        <a class="btn btn-danger ms-2" href="{% url 'home' %}">Cancelar</a>
-                    </div>
-                </form>
+					<!-- Botões -->
+					<div class="text-end mt-4">
+						<button class="btn btn-success" id="btn-submit" type="submit">Registrar Ocorrência</button>
+						<a class="btn btn-danger ms-2" href="{% url 'home' %}">Cancelar</a>
+					</div>
+				</form>
 
-            </div>
-        </div>
-    </div>
+			</div>
+		</div>
+	</div>
 </section>
 
 <script>
-    function showLoading() {
-        document.getElementById('loading-overlay').style.display = 'block';
-    }
+	function showLoading(text = "Carregando...") {
+	    const overlay = document.getElementById('loading-overlay');
+	    const loadingText = document.getElementById('loading-text');
+	    if (loadingText) loadingText.textContent = text;
+	    if (overlay) overlay.style.display = 'block';
+	}
 
-    function hideLoading() {
-        document.getElementById('loading-overlay').style.display = 'none';
-    }
+	function hideLoading() {
+	    const overlay = document.getElementById('loading-overlay');
+	    if (overlay) overlay.style.display = 'none';
+	}
 
-    // Inicializa mapa
-    let map = L.map('map').setView([-29.695259, -53.776140], 12);
-    let marker = null;
+	// Inicializa mapa
+	let map = L.map('map').setView([-29.695259, -53.776140], 12);
+	let marker = null;
 
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-        maxZoom: 19,
-        attribution: '&copy; OpenStreetMap contributors'
-    }).addTo(map);
+	L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+		maxZoom: 19,
+		attribution: '&copy; OpenStreetMap contributors'
+	}).addTo(map);
 
-    function setMarker(lat, lng) {
-        showLoading(); // Mostra loading
+	function setMarker(lat, lng) {
+		showLoading("Carregando localização...");
 
-        if (marker) {
-            marker.setLatLng([lat, lng]);
-        } else {
-            marker = L.marker([lat, lng], { draggable: true }).addTo(map);
-            marker.on('dragend', function (e) {
-                const pos = e.target.getLatLng();
-                updateLatLngInputs(pos.lat, pos.lng);
-                reverseGeocode(pos.lat, pos.lng);
-            });
-        }
+		if (marker) {
+			marker.setLatLng([lat, lng]);
+		} else {
+			marker = L.marker([lat, lng], { draggable: true }).addTo(map);
+			marker.on('dragend', function (e) {
+				const pos = e.target.getLatLng();
+				updateLatLngInputs(pos.lat, pos.lng);
+				reverseGeocode(pos.lat, pos.lng);
+			});
+		}
 
-        updateLatLngInputs(lat, lng);
-        reverseGeocode(lat, lng);
-    }
+		updateLatLngInputs(lat, lng);
+		reverseGeocode(lat, lng);
+	}
 
-    function updateLatLngInputs(lat, lng) {
-        document.getElementById('id_latitude').value = lat.toFixed(6);
-        document.getElementById('id_longitude').value = lng.toFixed(6);
-    }
+	function updateLatLngInputs(lat, lng) {
+		document.getElementById('id_latitude').value = lat.toFixed(6);
+		document.getElementById('id_longitude').value = lng.toFixed(6);
+	}
 
-    map.on('click', function (e) {
-        setMarker(e.latlng.lat, e.latlng.lng);
-    });
+	map.on('click', function (e) {
+		setMarker(e.latlng.lat, e.latlng.lng);
+	});
 
-    function centralizarMapa(lat, lng) {
-        map.setView([lat, lng], 16);
-        setMarker(lat, lng);
-    }
+	function centralizarMapa(lat, lng) {
+		map.setView([lat, lng], 16);
+		setMarker(lat, lng);
+	}
 
-    // Busca endereço a partir da lat/lng
-    function reverseGeocode(lat, lng) {
-        fetch(`/occurrences/reverse-geocode/?lat=${lat}&lon=${lng}`)
-            .then(response => response.json())
-            .then(data => {
-                if (!data.address) return;
+	// Busca endereço a partir da lat/lng
+	function reverseGeocode(lat, lng) {
+		fetch(`/occurrences/reverse-geocode/?lat=${lat}&lon=${lng}`)
+			.then(response => response.json())
+			.then(data => {
+				if (!data.address) return;
 
-                const address = data.address;
+				const address = data.address;
 
-                document.getElementById('id_logradouro').value =
-                    address.road || address.pedestrian || '';
+				document.getElementById('id_logradouro').value =
+					address.road || address.pedestrian || '';
 
-                document.getElementById('id_bairro').value =
-                    address.suburb || address.neighbourhood || '';
+				document.getElementById('id_bairro').value =
+					address.suburb || address.neighbourhood || '';
 
-                document.getElementById('id_cidade').value =
-                    address.city || address.town || address.village || '';
+				document.getElementById('id_cidade').value =
+					address.city || address.town || address.village || '';
 
-                document.getElementById('id_uf').value =
-                    address.state || '';
+				document.getElementById('id_uf').value =
+					address.state || '';
 
-                if (address.postcode) {
-                    document.getElementById('id_cep').value = address.postcode;
-                }
-            })
-            .catch(() => console.warn('Erro ao buscar endereço pelo mapa'))
-            .finally(() => hideLoading()); // Esconde loading
-    }
+				if (address.postcode) {
+					document.getElementById('id_cep').value = address.postcode;
+				}
+			})
+			.catch(() => console.warn('Erro ao buscar endereço pelo mapa'))
+			.finally(() => hideLoading()); // Esconde loading
+	}
 
-    // Busca endereço pelo CEP
-    function buscarEndereco() {
-        const cepInput = document.getElementById('id_cep');
-        const cep = cepInput.value.replace(/\D/g, '');
+	// Busca endereço pelo CEP
+	function buscarEndereco() {
+		const cepInput = document.getElementById('id_cep');
+		const cep = cepInput.value.replace(/\D/g, '');
 
-        if (cep.length !== 8) {
-            alert("Digite um CEP válido com 8 dígitos.");
-            return;
-        }
+		if (cep.length !== 8) {
+			alert("Digite um CEP válido com 8 dígitos.");
+			return;
+		}
 
-        showLoading(); // Mostra loading
+		showLoading("Carregando localização...");
 
-        fetch(`https://viacep.com.br/ws/${cep}/json/`)
-            .then(response => response.json())
-            .then(data => {
-                if (data.erro) {
-                    alert("CEP não encontrado.");
-                    return;
-                }
+		fetch(`https://viacep.com.br/ws/${cep}/json/`)
+			.then(response => response.json())
+			.then(data => {
+				if (data.erro) {
+					alert("CEP não encontrado.");
+					return;
+				}
 
-                document.getElementById('id_logradouro').value = data.logradouro || '';
-                document.getElementById('id_bairro').value = data.bairro || '';
-                document.getElementById('id_cidade').value = data.localidade || '';
-                document.getElementById('id_uf').value = data.uf || '';
-            })
-            .catch(() => alert("Erro ao buscar o CEP. Tente novamente."))
-            .finally(() => hideLoading()); // Esconde loading
-    }
+				document.getElementById('id_logradouro').value = data.logradouro || '';
+				document.getElementById('id_bairro').value = data.bairro || '';
+				document.getElementById('id_cidade').value = data.localidade || '';
+				document.getElementById('id_uf').value = data.uf || '';
+			})
+			.catch(() => alert("Erro ao buscar o CEP. Tente novamente."))
+			.finally(() => hideLoading()); // Esconde loading
+	}
 </script>
+<script>
+	document.addEventListener('DOMContentLoaded', () => {
+		const form = document.querySelector('form');
+		const submitButton = document.getElementById('btn-submit');
+		if (!form || !submitButton) return;
+
+		form.addEventListener('submit', (e) => {
+			showLoading("Registrando denúncia");
+			submitButton.disabled = true;
+
+			// Deixar o navegador enviar o form naturalmente
+			// NÃO usar preventDefault aqui
+		});
+	});
+</script>
+
 
 {% endblock %}

@@ -6,6 +6,16 @@
 {% block content %}
 {% load django_bootstrap5 %}
 {% bootstrap_messages %}
+{% load static %}
+
+<script>
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register("{% static 'cidade_segura/service-worker.js' %}")
+      .then(() => console.log("Service Worker registrado"))
+      .catch(err => console.error("Erro no SW:", err));
+  }
+</script>
+
 <section>
 	<div id="map" style="height: 1000px;"></div>
 </section>
